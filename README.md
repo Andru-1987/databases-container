@@ -3,7 +3,7 @@
 * MYSQL -> PORT 3306
 * POSTGRESQL -> PORT 5432
 * MONGODB -> PORT 27017
-
+* SQL Server -> PORT 1433
 ---
 
 Servicios adicionales: 
@@ -55,3 +55,4 @@ docker compose -f ./postgres/docker-compose.yml down
 open http://localhost:8080
 ```
 ![postgres](./postgres/image.png)
+
