@@ -1,21 +1,29 @@
+version: "3.8"
+
 services:
   db:
-    container_name: "sql_server"
+    container_name: MS_SQL_Server
+    image: mcr.microsoft.com/mssql/server:latest  # Use latest version of MS SQL Server
     environment:
       ACCEPT_EULA: "Y"
-      SA_PASSWORD: example_123
+      SA_PASSWORD: "example_123"
+      MSSQL_TLS_ENFORCE: "0"
     ports:
-      - 1433:1433
-    # mssql server image isn't available for arm64 architecture, so we use azure-sql instead
-    # image: mcr.microsoft.com/azure-sql-edge:1.0.4
-    # If you really want to use MS SQL Server, uncomment the following line
-    image: mcr.microsoft.com/mssql/server
+      - "1433:1433"
+    volumes:
+      - ./backup:/backup
     restart: always
+    command: >
+      /bin/bash -c "
+      /opt/mssql/bin/sqlservr --accept-eula & 
+      sleep 10 && 
+      wget https://github.com/Andru-1987/csv_files_ds/raw/main/Educacion.bak -O /backup/CoderHouse.bak && 
+      /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P example_123 -d master -i /backup/restore.database.sql -C
+      "
     healthcheck:
-        test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P example_123 -Q 'SELECT 1' || exit 1"]
-        interval: 10s
-        retries: 10
-        start_period: 10s
-        timeout: 3s     
-         
-       
+      test: [ "CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P example_123 -Q 'SELECT 1' || exit 1" ]
+      interval: 10s
+      retries: 10
+      start_period: 10s
+      timeout: 3s
+ 
